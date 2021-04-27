@@ -1,70 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { AlbumModel } from '../../models/AlbumModel';
-import { PhotoModel } from '../../models/PhotoModel';
-import * as api from '../../api';
+import React, { useContext } from 'react';
 import { PhotoList } from '../Photo';
 import AlbumList from '../Album/AlbumList';
 import { Route, Switch } from 'react-router';
 import { Message } from 'semantic-ui-react';
+import { AlbumsContext } from '../../contexts/AlbumsContext';
+import { PhotosContext } from '../../contexts/PhotosContext';
 
 const Main = () => {
-    const [albums, setAlbums] = useState<AlbumModel[]>([]);
-    const [photos, setPhotos] = useState<PhotoModel[]>([]);
-
-    useEffect(() => {
-        const localAlbums = localStorage.getItem('albums');
-        const localPhotos = localStorage.getItem('photos');
-
-        if (localAlbums && localPhotos) {
-            setAlbums(JSON.parse(localAlbums));
-            setPhotos(JSON.parse(localPhotos));
-        } else {
-            const albumsResponse = api.getAlbums();
-            const photosResponse = api.getPhotos();
-            setAlbums(albumsResponse);
-            setPhotos(photosResponse);
-        }
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem('albums', JSON.stringify(albums));
-    }, [albums]);
-
-    useEffect(() => {
-        localStorage.setItem('photos', JSON.stringify(photos));
-    }, [photos]);
-
-    const createAlbum = (album: AlbumModel) => {
-        const timestamp = Date.now();
-        album.id = `album-${timestamp}`;
-        setAlbums(prevAlbums => [...prevAlbums, album]);
-    }
-
-    const editAlbum = (key: string, updatedAlbum: AlbumModel) => {
-        const updatedAlbums = albums.map(album => album.id === key? updatedAlbum : album);
-        setAlbums(updatedAlbums);
-    }
-
-    const deleteAlbum = (key: string) => {
-        const updatedAlbums = albums.filter(album => album.id !== key);
-        setAlbums(updatedAlbums);
-    }
-
-    const createPhoto = (photo: PhotoModel) => {
-        const timestamp = Date.now();
-        photo.id = `photo-${timestamp}`;
-        setPhotos(prevPhotos => [...prevPhotos, photo]);
-    }
-
-    const editPhoto = (key: string, updatedPhoto: PhotoModel) => {
-        const updatedPhotos = photos.map(photo => photo.id === key? updatedPhoto : photo);
-        setPhotos(updatedPhotos);
-    }
-
-    const deletePhoto = (key: string) => {
-        const updatedPhotos = photos.filter(photo => photo.id !== key);
-        setPhotos(updatedPhotos);
-    }
+    const { albums, createAlbum, editAlbum, deleteAlbum } = useContext(AlbumsContext);
+    const { photos, createPhoto, editPhoto, deletePhoto } = useContext(PhotosContext);
 
     const albumList = () => <AlbumList
                                 albums={albums}
